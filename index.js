@@ -8,15 +8,17 @@ const stockRoutes = require("./routes/stock-routes");
 const investorRoutes = require("./routes/investor-routes");
 const transactionsRoutes = require("./routes/transactions-route");
 const buyOrSellStocks = require("./routes/buyOrSellStocks-route");
+const rdsUserRoute = require("./routes/rdsUser-route");
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
-stocksUpdate();
+// stocksUpdate();
 
 app.use("/api/stocks", stockRoutes.routes);
+app.use("/api/rdsUser", rdsUserRoute.routes);
 app.use("/api/investors", investorRoutes.routes);
 app.use("/api/transactions", transactionsRoutes.routes);
 app.use("/api/buyOrSellStocks", buyOrSellStocks.routes);

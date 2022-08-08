@@ -50,7 +50,7 @@ const buyStock = async (req, res, next) => {
 			let newQuantity =
 				parseFloat(boughtStock.stockQuantity || 0) +
 				parseFloat(req.query.quantity || 1);
-			boughtStock.stockQuantity = newQuantity;
+			boughtStock.stockQuantity = parseFloat(newQuantity).toFixed(3);
 		} else {
 			boughtStock = {};
 			boughtStock.stockName = stockData.data().name;
@@ -68,8 +68,12 @@ const buyStock = async (req, res, next) => {
 			ownedStocks: newOwnedStocks,
 			transactions: newTransactions,
 		});
+		const data = {
+			balance: newBalance,
+			transactionId: transactionId,
+		};
 
-		res.send(`stock bought successfully with transactionId=${transactionId}`);
+		res.send(data);
 	} catch (err) {
 		res.status(400).send(err.message);
 	}
@@ -116,8 +120,8 @@ const sellStock = async (req, res, next) => {
 		let sellStock = newOwnedStocks.find((stock) => stock.stockId === stockId);
 
 		let newQuantity =
-			parseFloat(sellStock.stockQuantity || 0) -
-			parseFloat(req.query.quantity || 1);
+			parseFloat(sellStock.stockQuantity || 0).toFixed(3) -
+			parseFloat(req.query.quantity || 1).toFixed(3);
 		sellStock.stockQuantity = newQuantity;
 
 		newOwnedStocks = newOwnedStocks.filter(
@@ -132,8 +136,12 @@ const sellStock = async (req, res, next) => {
 			ownedStocks: newOwnedStocks,
 			transactions: newTransactions,
 		});
+		const data = {
+			balance: newBalance,
+			transactionId: transactionId,
+		};
 
-		res.send(`stock sold successfully with transactionId=${transactionId}`);
+		res.send(data);
 	} catch (err) {
 		res.status(400).send(err.message);
 	}

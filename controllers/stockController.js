@@ -16,26 +16,38 @@ const addStocks = async (req, res, next) => {
 
 const getAllStocks = async (req, res, next) => {
 	try {
-		const stocks = await fireStore.collection("stocks");
-		const data = await stocks.get();
-		const stocksArray = [];
-		if (data.empty) {
-			res.status(404).send("No stocks found");
-		} else {
-			data.forEach((doc) => {
-				const stock = new Stock(
-					doc.id,
-					doc.data().name,
-					doc.data().symbol,
-					doc.data().marketValue,
-					doc.data().status
-				);
-				stocksArray.push(stock);
-			});
-			res.send(stocksArray);
-		}
+		const headers = {
+			"Content-Type": "text/event-stream; charset=utf-8",
+			Connection: "keep-alive",
+			"Cache-Control": "no-cache",
+			"Access-Control-Allow-Origin": "*",
+			"Access-Control-Allow-Credentials": true,
+			"Access-Control-Allow-Headers": "content-type",
+		};
+		res.writeHead(200, headers);
+		// res.flushHeaders();
+		setInterval(async () => {
+			const stocks = await fireStore.collection("stocks");
+			const data = await stocks.get();
+			const stocksArray = [];
+			if (data.empty) {
+				res.status(404).write("No stocks found");
+			} else {
+				data.forEach((doc) => {
+					const stock = new Stock(
+						doc.id,
+						doc.data().name,
+						doc.data().symbol,
+						doc.data().marketValue,
+						doc.data().status
+					);
+					stocksArray.push(stock);
+				});
+				res.write(`data: ${JSON.stringify(stocksArray)}\n\n`);
+			}
+		}, 2000);
 	} catch (error) {
-		res.status(400).send(error.message);
+		res.status(400).write(error.message);
 	}
 };
 

@@ -4,7 +4,7 @@ const {
 } = require("../../controllers/stockController");
 
 const stocksUpdate = () => {
-	cron.schedule("*/5 * * * * *", function () {
+	cron.schedule("*/50 * * * * *", function () {
 		console.log("running a task every 30 seconds");
 		updateStocksMarketValue();
 	});

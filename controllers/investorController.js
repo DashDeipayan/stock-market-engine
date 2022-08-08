@@ -47,7 +47,6 @@ const getInvestorById = async (req, res, next) => {
 		if (!data.exists) {
 			res.status(404).send("No investor found");
 		} else {
-			console.log(data.data());
 			res.send(data.data());
 		}
 	} catch (err) {
