@@ -5,10 +5,10 @@ const fireStore = firebase.firestore();
 const buyStock = async (req, res, next) => {
 	try {
 		//get investor id
-		const investorId = req.query.investorId;
+		const investorId = req.body.rdsUserId;
 
 		//get stock id
-		const stockId = req.query.stockId;
+		const stockId = req.body.stockId;
 
 		//get stock data
 		const stock = await fireStore.collection("stocks").doc(stockId);
@@ -20,7 +20,7 @@ const buyStock = async (req, res, next) => {
 		console.log(stockData.data());
 
 		const purchaseValue =
-			stockData.data().marketValue * (req.query.quantity || 1);
+			stockData.data().marketValue * (req.body.quantity || 1);
 
 		const newBalance = investorData.data().balance - purchaseValue;
 
@@ -81,10 +81,10 @@ const buyStock = async (req, res, next) => {
 
 const sellStock = async (req, res, next) => {
 	try {
-		const investorId = req.query.investorId;
+		const investorId = req.body.rdsUserId;
 
 		//get stock id
-		const stockId = req.query.stockId;
+		const stockId = req.body.stockId;
 
 		//get stock data
 		const stock = await fireStore.collection("stocks").doc(stockId);
@@ -94,7 +94,7 @@ const sellStock = async (req, res, next) => {
 		const investor = await fireStore.collection("investors").doc(investorId);
 		const investorData = await investor.get();
 
-		const sellValue = stockData.data().marketValue * (req.query.quantity || 1);
+		const sellValue = stockData.data().marketValue * (req.body.quantity || 1);
 
 		const newBalance = investorData.data().balance + sellValue;
 
