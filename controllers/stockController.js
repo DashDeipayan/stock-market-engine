@@ -25,7 +25,7 @@ const getAllStocks = async (req, res, next) => {
 			"Access-Control-Allow-Headers": "content-type",
 		};
 		res.writeHead(200, headers);
-		// res.flushHeaders();
+		res.flushHeaders();
 		setInterval(async () => {
 			const stocks = await fireStore.collection("stocks");
 			const data = await stocks.get();
@@ -45,7 +45,7 @@ const getAllStocks = async (req, res, next) => {
 				});
 				res.write(`data: ${JSON.stringify(stocksArray)}\n\n`);
 			}
-		}, 2000);
+		}, 10 * 1000);
 	} catch (error) {
 		res.status(400).write(error.message);
 	}

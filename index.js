@@ -24,6 +24,3 @@ app.use("/api/transactions", transactionsRoutes.routes);
 app.use("/api/buyOrSellStocks", buyOrSellStocks.routes);
 
 app.listen(config.port, () => console.log("App is listening"));
-
-//UtlxWoOCb405CHKcNBd3
-//FOZO3Uw7R8UnBhSymOQG
