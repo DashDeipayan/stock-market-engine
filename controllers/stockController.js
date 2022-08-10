@@ -1,6 +1,7 @@
 "use strict";
 const firebase = require("../db");
 const Stock = require("../models/stocks");
+const betterInterval = require("../helpers/betterInterval");
 const fireStore = firebase.firestore();
 const randomMovements = require("../helpers/randomMovements");
 
@@ -26,7 +27,7 @@ const getAllStocks = async (req, res, next) => {
 		};
 		res.writeHead(200, headers);
 		res.flushHeaders();
-		setInterval(async () => {
+		new betterInterval(async () => {
 			const stocks = await fireStore.collection("stocks");
 			const data = await stocks.get();
 			const stocksArray = [];
@@ -45,7 +46,7 @@ const getAllStocks = async (req, res, next) => {
 				});
 				res.write(`data: ${JSON.stringify(stocksArray)}\n\n`);
 			}
-		}, 10 * 1000);
+		}, 50 * 1000).start();
 	} catch (error) {
 		res.status(400).write(error.message);
 	}
