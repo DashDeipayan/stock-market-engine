@@ -1,11 +1,14 @@
 const cron = require("node-cron");
+const config = require("../../config");
 const {
 	updateStocksMarketValue,
 } = require("../../controllers/stockController");
 
+const timeToRefresh = config.scheduleTime;
+
 const stocksUpdate = () => {
-	cron.schedule("*/50 * * * * *", function () {
-		console.log("running a task every 30 seconds");
+	cron.schedule(`*/${timeToRefresh} * * * * *`, function () {
+		console.log(`running a task every ${timeToRefresh} seconds`);
 		updateStocksMarketValue();
 	});
 };

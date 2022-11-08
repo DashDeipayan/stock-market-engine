@@ -15,6 +15,7 @@ const {
 	MESSAGING_SENDER_ID,
 	APP_ID,
 	MEASUREMENT_ID,
+	SCHEDULE_TIME,
 } = process.env;
 
 assert(PORT, "PORT is required");
@@ -24,6 +25,7 @@ module.exports = {
 	port: PORT,
 	host: HOST,
 	hostUrl: HOST_URL,
+	scheduleTime: SCHEDULE_TIME,
 	firebaseConfig: {
 		apiKey: API_KEY,
 		authDomain: AUTH_DOMAIN,

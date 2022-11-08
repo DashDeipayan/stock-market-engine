@@ -1,5 +1,6 @@
 "use strict";
 const firebase = require("../db");
+const config = require("../config");
 const Stock = require("../models/stocks");
 const betterInterval = require("../helpers/betterInterval");
 const fireStore = firebase.firestore();
@@ -46,7 +47,7 @@ const getAllStocks = async (req, res, next) => {
 				});
 				res.write(`data: ${JSON.stringify(stocksArray)}\n\n`);
 			}
-		}, 50 * 1000).start();
+		}, config.scheduleTime * 1000).start();
 	} catch (error) {
 		res.status(400).write(error.message);
 	}
