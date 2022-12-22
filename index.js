@@ -15,7 +15,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-stocksUpdate();
+// stocksUpdate();
 
 app.use("/api/stocks", stockRoutes.routes);
 app.use("/api/rdsUser", rdsUserRoute.routes);
