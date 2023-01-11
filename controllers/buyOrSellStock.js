@@ -1,149 +1,43 @@
 "use strict";
 const firebase = require("../db");
 const fireStore = firebase.firestore();
+const BuyOrSellStock = require("../models/buyOrSellStock");
 
 const buyStock = async (req, res, next) => {
 	try {
-		//get investor id
-		const investorId = req.body.rdsUserId;
-
-		//get stock id
-		const stockId = req.body.stockId;
-
-		//get stock data
-		const stock = await fireStore.collection("stocks").doc(stockId);
-		const stockData = await stock.get();
-
-		//get investor data
-		const investor = await fireStore.collection("investors").doc(investorId);
-		const investorData = await investor.get();
-		console.log(stockData.data());
-
-		const purchaseValue =
-			stockData.data().marketValue * (req.body.quantity || 1);
-
-		const newBalance = investorData.data().balance - purchaseValue;
-
-		let transactionData = {};
-		transactionData.StockSymbol = stockData.data().symbol;
-		transactionData.StockId = stockId;
-		transactionData.InvestorID = investorId;
-		transactionData.TransactionValue = purchaseValue;
-		transactionData.TransactionType = "Buy";
-		transactionData.TransactionDate = new Date().toISOString();
-		const transactionId = await fireStore
-			.collection("transactions")
-			.add(transactionData)
-			.then((docRef) => {
-				return docRef.id;
-			});
-		transactionData.transactionId = transactionId;
-
-		let newTransactions = investorData.data().transactions;
-		newTransactions.push(transactionData);
-
-		let newOwnedStocks = investorData.data().ownedStocks;
-
-		let boughtStock = newOwnedStocks.find((stock) => stock.stockId === stockId);
-
-		if (boughtStock) {
-			let newQuantity =
-				parseFloat(boughtStock.stockQuantity || 0) +
-				parseFloat(req.query.quantity || 1);
-			boughtStock.stockQuantity = parseFloat(newQuantity).toFixed(3);
-		} else {
-			boughtStock = {};
-			boughtStock.stockName = stockData.data().name;
-			boughtStock.stockId = stockId;
-			boughtStock.stockQuantity = req.query.quantity || 1;
-		}
-
-		newOwnedStocks = newOwnedStocks.filter(
-			(stock) => stock.stockId !== stockId
+		const purchaseData = req.body;
+		purchaseData.investorId = req.userData.id;
+		purchaseData.purchaseDate = fireStore.TimeStamp.fromDate(new Date());
+		const { transactionId, message, data } = await BuyOrSellStock.buyStock(
+			purchaseData
 		);
-		newOwnedStocks.push(boughtStock);
-
-		await fireStore.collection("investors").doc(investorId).update({
-			balance: newBalance,
-			ownedStocks: newOwnedStocks,
-			transactions: newTransactions,
+		return res.json({
+			message,
+			transactionId,
+			data,
 		});
-		const data = {
-			balance: newBalance,
-			transactionId: transactionId,
-		};
-
-		res.send(data);
 	} catch (err) {
-		res.status(400).send(err.message);
+		logger.error("Error in creating Tag", err);
+		throw err;
 	}
 };
 
 const sellStock = async (req, res, next) => {
 	try {
-		const investorId = req.body.rdsUserId;
-
-		//get stock id
-		const stockId = req.body.stockId;
-
-		//get stock data
-		const stock = await fireStore.collection("stocks").doc(stockId);
-		const stockData = await stock.get();
-
-		//get investor data
-		const investor = await fireStore.collection("investors").doc(investorId);
-		const investorData = await investor.get();
-
-		const sellValue = stockData.data().marketValue * (req.body.quantity || 1);
-
-		const newBalance = investorData.data().balance + sellValue;
-
-		let transactionData = {};
-		transactionData.StockSymbol = stockData.data().symbol;
-		transactionData.StockId = stockId;
-		transactionData.InvestorID = investorId;
-		transactionData.TransactionValue = sellValue;
-		transactionData.TransactionType = "Sell";
-		transactionData.TransactionDate = new Date().toISOString();
-		const transactionId = await fireStore
-			.collection("transactions")
-			.add(transactionData)
-			.then((docRef) => {
-				return docRef.id;
-			});
-		transactionData.transactionId = transactionId;
-
-		let newTransactions = investorData.data().transactions;
-		newTransactions.push(transactionData);
-
-		let newOwnedStocks = investorData.data().ownedStocks;
-		let sellStock = newOwnedStocks.find((stock) => stock.stockId === stockId);
-
-		let newQuantity =
-			parseFloat(sellStock.stockQuantity || 0).toFixed(3) -
-			parseFloat(req.query.quantity || 1).toFixed(3);
-		sellStock.stockQuantity = newQuantity;
-
-		newOwnedStocks = newOwnedStocks.filter(
-			(stock) => stock.stockId !== stockId
+		const sellData = req.body;
+		sellData.investorId = req.userData.id;
+		sellData.purchaseDate = fireStore.TimeStamp.fromDate(new Date());
+		const { transactionId, message, data } = await BuyOrSellStock.sellStock(
+			sellData
 		);
-		if (sellStock.stockQuantity >= 0) {
-			newOwnedStocks.push(sellStock);
-		}
-
-		await fireStore.collection("investors").doc(investorId).update({
-			balance: newBalance,
-			ownedStocks: newOwnedStocks,
-			transactions: newTransactions,
+		return res.json({
+			message,
+			transactionId,
+			data,
 		});
-		const data = {
-			balance: newBalance,
-			transactionId: transactionId,
-		};
-
-		res.send(data);
 	} catch (err) {
-		res.status(400).send(err.message);
+		logger.error("Error in creating Tag", err);
+		throw err;
 	}
 };
 module.exports = {

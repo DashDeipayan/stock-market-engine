@@ -1,57 +1,67 @@
 "use strict";
 
 const firebase = require("../db");
-const Transaction = require("../models/transactions");
+const TransactionsModel = require("../models/transactions");
 const fireStore = firebase.firestore();
 
 const addTransaction = async (req, res, next) => {
 	try {
-		const data = req.body;
-		await fireStore.collection("transactions").add(data);
-		res.send("transaction saved successfully");
-	} catch (error) {
-		res.status(400).send(error.message);
+		const transactionData = req.body;
+		transactionData.InvestorID = req.userData.id;
+		transactionData.TransactionDate = fireStore.TimeStamp.fromDate(new Date());
+		const { transactionId, message } = await TransactionsModel.addTransaction(
+			transactionData
+		);
+		return res.json({
+			message,
+			transactionId,
+			data: {
+				transactionData,
+			},
+		});
+	} catch (err) {
+		logger.error("Error in creating Tag", err);
+		throw err;
 	}
 };
 const getAllTransactions = async (req, res, next) => {
 	try {
-		const transactions = await fireStore.collection("transactions");
-		const data = await transactions.get();
-		const transactionsArray = [];
-		if (data.empty) {
-			res.status(404).send("No transaction found");
+		const { allTransactions, message } =
+			await TransactionsModel.getAllTransactions();
+		if (allTransactions) {
+			return res.json({ message, transactions: allTransactions });
 		} else {
-			data.forEach((doc) => {
-				const transaction = new Transaction(
-					doc.id,
-					doc.data().StockSymbol,
-					doc.data().InvestorID,
-					doc.data().StockId,
-					doc.data().TransactionValue,
-					doc.data().TransactionType,
-					doc.data().TransactionDate
-				);
-				transactionsArray.push(transaction);
-			});
-			res.send(transactionsArray);
+			return res.json({ message });
 		}
 	} catch (err) {
-		res.status(400).send(err.message);
+		logger.error("Error in creating Tag", err);
+		throw err;
 	}
 };
 
-const purchaseOfStock = async (req, res, next) => {
+const getTransactionById = async (req, res, next) => {
 	try {
-		const id = req.query.id;
-		const stock = await fireStore.collection("stocks").doc(id);
-		const data = await stock.get();
+		const transactionid = req.params.id;
+		const { transactionData, message } =
+			await TransactionsModel.getTransactionById(transactionid);
+		if (transactionid) {
+			return res.json({
+				message,
+				data: transactionData,
+			});
+		} else {
+			return res.status(404).json({
+				message,
+			});
+		}
 	} catch (err) {
-		res.status(400).send(err.message);
+		logger.error("Error in creating Tag", err);
+		throw err;
 	}
 };
 
 module.exports = {
 	addTransaction,
 	getAllTransactions,
-	purchaseOfStock,
+	getTransactionById,
 };

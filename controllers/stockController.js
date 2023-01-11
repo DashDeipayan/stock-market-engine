@@ -1,18 +1,15 @@
 "use strict";
-const firebase = require("../db");
 const config = require("../config");
-const Stock = require("../models/stocks");
+const stockModel = require("../models/stocks");
 const betterInterval = require("../helpers/betterInterval");
-const fireStore = firebase.firestore();
-const randomMovements = require("../helpers/randomMovements");
 
 const addStocks = async (req, res, next) => {
 	try {
-		const data = req.body;
-		await fireStore.collection("stocks").add(data);
-		res.send("record saved successfully");
+		const { stockid, data, message } = await stockModel.addStocks(req.body);
+		res.send({ stockid, data, message });
 	} catch (error) {
-		res.status(400).send(error.message);
+		logger.error("Error in creating Tag", err);
+		throw err;
 	}
 };
 
@@ -29,90 +26,58 @@ const getAllStocks = async (req, res, next) => {
 		res.writeHead(200, headers);
 		res.flushHeaders();
 		new betterInterval(async () => {
-			const stocks = await fireStore.collection("stocks");
-			const data = await stocks.get();
-			const stocksArray = [];
-			if (data.empty) {
-				res.status(404).write("No stocks found");
+			const { stocksArray, message } = await stockModel.getAllStocks();
+			if (stocksArray.length === 0) {
+				res.status(404).write(`data: ${JSON.stringify(message)}\n\n`);
 			} else {
-				data.forEach((doc) => {
-					const stock = new Stock(
-						doc.id,
-						doc.data().name,
-						doc.data().symbol,
-						doc.data().marketValue,
-						doc.data().status
-					);
-					stocksArray.push(stock);
-				});
 				res.write(`data: ${JSON.stringify(stocksArray)}\n\n`);
 			}
 		}, config.scheduleTime * 1000).start();
-	} catch (error) {
-		res.status(400).write(error.message);
+	} catch (err) {
+		logger.error("Error in creating Tag", err);
+		throw err;
 	}
 };
 
 const getStockById = async (req, res, next) => {
 	try {
 		const id = req.params.id;
-		const stock = await fireStore.collection("students").doc(id);
-		const data = await stock.get();
+		const { stock, message } = await stockModel.getStockById(id);
 		if (!data.exists) {
-			res.status(404).send("No stock found");
+			res.status(404).send({ message });
 		} else {
-			console.log(data.data());
-			res.send(data.data());
+			res.send({ stock, message });
 		}
-	} catch (error) {
-		res.status(400).send(error.message);
+	} catch (err) {
+		logger.error("Error in creating Tag", err);
+		throw err;
 	}
 };
 
 const updateStock = async (req, res, next) => {
 	try {
-		const id = req.params.id;
-		const data = req.query;
-		const stock = await fireStore.collection("students").doc(id);
-		await stock.update({ ...data });
+		const stockId = req.params.id;
+		const updatedData = req.body;
+		const { id, data, message } = await stockModel.updateStock({
+			stockId,
+			updatedData,
+		});
 
-		res.send("number changed successfully");
+		res.send({ id, data, message });
 	} catch (err) {
-		res.status(400).send(err.message);
+		logger.error("Error in creating Tag", err);
+		throw err;
 	}
 };
 
 const deleteStock = async (req, res, next) => {
 	try {
-		const id = req.params.id;
-		await fireStore.collection("stocks").doc(id).delete();
-		res.send("record deleted successfully");
-	} catch (error) {
-		res.status(400).send(error.message);
-	}
-};
-
-const updateStocksMarketValue = async (req, res, next) => {
-	try {
-		const stocksData = await fireStore.collection("stocks").get();
-		if (stocksData.empty) {
-			res.status(404).send("No stocks found");
-		} else {
-			stocksData.forEach(async (stock) => {
-				const newMarketValue = randomMovements();
-				const oldMarketValue = parseFloat(stock.data().marketValue);
-				const newMarketValueTotal = parseFloat(
-					(oldMarketValue + newMarketValue).toFixed(2)
-				);
-				await fireStore
-					.collection("stocks")
-					.doc(stock.id)
-					.update({ marketValue: newMarketValueTotal });
-			});
-			console.log("Stocks market value updated successfully");
-		}
+		const stockId = req.params.id;
+		const { id, message } = await stockModel.deleteStock(stockId);
+		res.send({ id, message });
 	} catch (err) {
-		console.error(err.message);
+		logger.error("Error in creating Tag", err);
+		throw err;
 	}
 };
 
@@ -122,5 +87,4 @@ module.exports = {
 	getStockById,
 	updateStock,
 	deleteStock,
-	updateStocksMarketValue,
 };
