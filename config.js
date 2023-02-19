@@ -16,6 +16,10 @@ const {
 	APP_ID,
 	MEASUREMENT_ID,
 	SCHEDULE_TIME,
+	GOOGLE_CLIENT_ID,
+	GOOGLE_CLIENT_SECRET,
+	GITHUB_CLIENT_ID,
+	GITHUB_CLIENT_SECRET,
 } = process.env;
 
 assert(PORT, "PORT is required");
@@ -34,5 +38,11 @@ module.exports = {
 		messagingSenderId: MESSAGING_SENDER_ID,
 		appId: APP_ID,
 		measurementId: MEASUREMENT_ID,
+	},
+	loginCredentials: {
+		googleClientId: GOOGLE_CLIENT_ID,
+		googleClientSecret: GOOGLE_CLIENT_SECRET,
+		githubClientId: GITHUB_CLIENT_ID,
+		githubClientSecret: GITHUB_CLIENT_SECRET,
 	},
 };

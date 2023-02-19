@@ -1,5 +1,5 @@
 const firebase = require("../db");
-const fireStore = firebase.fireStore();
+const fireStore = firebase.firestore();
 const StocksModel = fireStore.collection("stocks");
 const randomMovements = require("../helpers/randomMovements");
 

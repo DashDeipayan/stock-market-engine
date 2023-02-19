@@ -1,5 +1,5 @@
 const firebase = require("../db");
-const fireStore = firebase.fireStore();
+const fireStore = firebase.firestore();
 const transactionsModel = fireStore.collection("transactions");
 
 const addTransaction = async (transactionData) => {
