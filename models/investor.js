@@ -13,13 +13,15 @@ const addOrUpdateInvestor = async (investorData) => {
 			await investorsModel.add(investorData);
 			return {
 				isNewUser: true,
-				id: investorData.id,
+				data: investorData,
 				message: "Investor added successfully",
 			};
 		}
+		let data = {};
+		investor.forEach((doc) => (data = { id: doc.id, ...doc.data() }));
 		return {
 			isNewUser: false,
-			id: investorData.id,
+			data,
 			message: "Investor exists",
 		};
 	} catch (err) {

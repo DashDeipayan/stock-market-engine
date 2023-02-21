@@ -17,8 +17,8 @@ passport.use(
 				email: profile.emails[0].value,
 				id: profile.id,
 			};
-			addOrUpdateInvestor(investorData);
-			return done(null, profile);
+			const investor = await addOrUpdateInvestor(investorData);
+			return done(null, investor);
 		}
 	)
 );
@@ -30,14 +30,14 @@ passport.use(
 			clientSecret: loginCredentials.githubClientSecret,
 			callbackURL: "/auth/github/callback",
 		},
-		function (accessToken, refreshToken, profile, done) {
+		async function (accessToken, refreshToken, profile, done) {
 			const investorData = {
 				name: profile._json.name,
 				email: profile._json.email,
 				id: profile.id,
 			};
-			addOrUpdateInvestor(investorData);
-			return done(null, profile);
+			const investor = await addOrUpdateInvestor(investorData);
+			return done(null, investor);
 		}
 	)
 );
