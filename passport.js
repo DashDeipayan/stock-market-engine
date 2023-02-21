@@ -1,5 +1,6 @@
 const passport = require("passport");
 const { loginCredentials } = require("./config.js");
+const { addOrUpdateInvestor } = require("./models/investor.js");
 var GoogleStrategy = require("passport-google-oauth20").Strategy;
 var GitHubStrategy = require("passport-github2").Strategy;
 
@@ -10,8 +11,14 @@ passport.use(
 			clientSecret: loginCredentials.googleClientSecret,
 			callbackURL: "/auth/google/callback",
 		},
-		function (accessToken, refreshToken, profile, done) {
-			done(null, profile);
+		async function (accessToken, refreshToken, profile, done) {
+			const investorData = {
+				name: profile.displayName,
+				email: profile.emails[0].value,
+				id: profile.id,
+			};
+			addOrUpdateInvestor(investorData);
+			return done(null, profile);
 		}
 	)
 );
@@ -24,7 +31,13 @@ passport.use(
 			callbackURL: "/auth/github/callback",
 		},
 		function (accessToken, refreshToken, profile, done) {
-			done(null, profile);
+			const investorData = {
+				name: profile._json.name,
+				email: profile._json.email,
+				id: profile.id,
+			};
+			addOrUpdateInvestor(investorData);
+			return done(null, profile);
 		}
 	)
 );

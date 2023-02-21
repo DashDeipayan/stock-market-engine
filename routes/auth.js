@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
+const config = require("../config.js");
 require("../passport.js");
 
 const CLIENT_URL = "http://localhost:3000/";
@@ -22,7 +23,15 @@ router.get("/login/success", (req, res) => {
 	}
 });
 
-router.get("/google", passport.authenticate("google", { scope: ["profile"] }));
+router.get(
+	"/google",
+	passport.authenticate("google", {
+		scope: [
+			"https://www.googleapis.com/auth/userinfo.profile",
+			"https://www.googleapis.com/auth/userinfo.email",
+		],
+	})
+);
 
 router.get(
 	"/google/callback",
@@ -31,7 +40,10 @@ router.get(
 		failureRedirect: "/login/failed",
 	})
 );
-router.get("/github", passport.authenticate("github", { scope: ["profile"] }));
+router.get(
+	"/github",
+	passport.authenticate("github", { scope: ["user:email"] })
+);
 
 router.get(
 	"/github/callback",
@@ -42,6 +54,9 @@ router.get(
 );
 
 router.get("/logout", (req, res) => {
+	res.clearCookie(config.cookieName, {
+		domain: CLIENT_URL,
+	});
 	req.logout();
 	res.redirect(CLIENT_URL);
 });

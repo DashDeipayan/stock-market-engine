@@ -1,13 +1,15 @@
 "use strict";
 const firebase = require("../db");
-const Investor = require("../models/investor");
+const InvestorModel = require("../models/investor");
 const fireStore = firebase.firestore();
 
-const addInvestor = async (req, res, next) => {
+const addOrUpdateInvestor = async (req, res, next) => {
 	try {
 		const data = req.body;
-		await fireStore.collection("investors").add(data);
-		res.send("record saved successfully");
+		const { isNewUser, id, message } = await InvestorModel.addOrUpdateInvestor(
+			data
+		);
+		return res.json({ id, message, data });
 	} catch (err) {
 		res.status(400).send(err.message);
 	}
@@ -76,7 +78,7 @@ const deleteInvestor = async (req, res, next) => {
 };
 
 module.exports = {
-	addInvestor,
+	addOrUpdateInvestor,
 	getAllInvestors,
 	getInvestorById,
 	updateInvestor,

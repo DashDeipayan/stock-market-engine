@@ -25,7 +25,7 @@ app.use(
 );
 app.use(
 	cookieSession({
-		name: "dash-session",
+		name: config.cookieName,
 		keys: ["dash"],
 		maxAge: 24 * 60 * 60 * 1000,
 	})
