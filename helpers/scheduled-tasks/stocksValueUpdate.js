@@ -1,8 +1,6 @@
 const cron = require("node-cron");
 const config = require("../../config");
-const {
-	updateStocksMarketValue,
-} = require("../../controllers/stockController");
+const { updateStocksMarketValue } = require("../../models/stocks");
 
 const timeToRefresh = config.scheduleTime;
 

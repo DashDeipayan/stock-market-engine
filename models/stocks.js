@@ -26,9 +26,11 @@ const getAllStocks = async () => {
 				const stock = {
 					stockId: doc.id,
 					name: doc.data().name,
-					symbol: doc.data.symbol,
-					value: doc.data.marketValue,
-					status: doc.data.status,
+					symbol: doc.data().symbol,
+					value: doc.data().marketValue,
+					status: doc.data().status,
+					quantity: doc.data().quantity,
+					image: doc.data().image,
 				};
 				stocksArray.push(stock);
 			});

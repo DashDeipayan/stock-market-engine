@@ -1,9 +1,9 @@
 const express = require("express");
-const { buyStock, sellStock } = require("../controllers/buyOrSellStock");
+const { buyStock, sellStock } = require("../controllers/purchaseController");
 
 const router = express.Router();
 
-router.put("/buy", buyStock);
+router.post("/buy", buyStock);
 router.put("/sell", sellStock);
 
 module.exports = {

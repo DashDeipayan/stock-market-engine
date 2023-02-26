@@ -15,7 +15,7 @@ passport.use(
 			const investorData = {
 				name: profile.displayName,
 				email: profile.emails[0].value,
-				id: profile.id,
+				investorId: profile.id,
 			};
 			const investor = await addOrUpdateInvestor(investorData);
 			return done(null, investor);
@@ -34,7 +34,7 @@ passport.use(
 			const investorData = {
 				name: profile._json.name,
 				email: profile._json.email,
-				id: profile.id,
+				investorId: profile.id,
 			};
 			const investor = await addOrUpdateInvestor(investorData);
 			return done(null, investor);
