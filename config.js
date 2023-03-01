@@ -21,6 +21,8 @@ const {
 	GITHUB_CLIENT_ID,
 	GITHUB_CLIENT_SECRET,
 	COOKIE_NAME,
+	COOKIE_KEY,
+	COOKIE_MAX_AGE,
 } = process.env;
 
 assert(PORT, "PORT is required");
@@ -31,7 +33,6 @@ module.exports = {
 	host: HOST,
 	hostUrl: HOST_URL,
 	scheduleTime: SCHEDULE_TIME,
-	cookieName: COOKIE_NAME,
 	firebaseConfig: {
 		apiKey: API_KEY,
 		authDomain: AUTH_DOMAIN,
@@ -46,5 +47,10 @@ module.exports = {
 		googleClientSecret: GOOGLE_CLIENT_SECRET,
 		githubClientId: GITHUB_CLIENT_ID,
 		githubClientSecret: GITHUB_CLIENT_SECRET,
+	},
+	cookieData: {
+		name: COOKIE_NAME,
+		keys: [COOKIE_KEY.toString()],
+		maxAge: COOKIE_MAX_AGE,
 	},
 };
