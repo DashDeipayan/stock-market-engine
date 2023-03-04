@@ -24,8 +24,7 @@ const buyStock = async (req, res, next) => {
 const sellStock = async (req, res, next) => {
 	try {
 		const sellData = req.body;
-		sellData.investorId = req.userData.id;
-		sellData.purchaseDate = fireStore.TimeStamp.fromDate(new Date());
+		sellData.purchaseDate = new Date().toUTCString();
 		const { transactionId, message, data } = await purchase.sellStock(sellData);
 		return res.json({
 			message,
@@ -33,7 +32,6 @@ const sellStock = async (req, res, next) => {
 			data,
 		});
 	} catch (err) {
-		logger.error("Error in creating Tag", err);
 		throw err;
 	}
 };

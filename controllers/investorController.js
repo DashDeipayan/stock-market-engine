@@ -44,12 +44,19 @@ const getAllInvestors = async (req, res, next) => {
 const getInvestorById = async (req, res, next) => {
 	try {
 		const id = req.params.id;
-		const investor = await fireStore.collection("investors").doc(id);
-		const data = await investor.get();
-		if (!data.exists) {
+		const investor = await fireStore
+			.collection("investors")
+			.where("investorId", "==", id)
+			.get();
+
+		const data = [];
+		investor.forEach((doc) => {
+			data.push({ id: doc.id, ...doc.data() });
+		});
+		if (!data.length) {
 			res.status(404).send("No investor found");
 		} else {
-			res.send(data.data());
+			res.status(200).json({ ...data });
 		}
 	} catch (err) {
 		res.status(400).send(err.message);

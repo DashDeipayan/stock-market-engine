@@ -7,7 +7,7 @@ const { cookieData, port } = require("./config");
 const stockRoutes = require("./routes/stock-routes");
 const investorRoutes = require("./routes/investor-routes");
 const transactionsRoutes = require("./routes/transactions-route");
-const buyOrSellStocks = require("./routes/purchase-route");
+const purchaseRoutes = require("./routes/purchase-route");
 const rdsUserRoute = require("./routes/rdsUser-route");
 const authRoute = require("./routes/auth");
 const passport = require("passport");
@@ -35,6 +35,6 @@ app.use("/api/rdsUser", rdsUserRoute.routes);
 app.use("/api/investors", investorRoutes.routes);
 app.use("/api/transactions", transactionsRoutes.routes);
 app.use("/api/investments", investmentRoute.routes);
-app.use("/api/purchase", buyOrSellStocks.routes);
+app.use("/api/purchase", purchaseRoutes.routes);
 
 app.listen(port, () => console.log("App is listening at port:", port));

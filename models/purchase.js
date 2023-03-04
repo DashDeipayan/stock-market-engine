@@ -7,7 +7,7 @@ const transactionModel = fireStore.collection("transactions");
 
 const buyStock = async (data) => {
 	try {
-		const { stockId, investorId, quantity, purchaseDate } = data;
+		const { stockId, investorId, quantity, price, purchaseDate } = data;
 		const stock = await stocksModel.doc(stockId);
 		const stockData = await stock.get();
 
@@ -21,7 +21,7 @@ const buyStock = async (data) => {
 			investor.push(item);
 		});
 
-		const purchaseValue = stockData.data().marketValue * (data.quantity || 1);
+		const purchaseValue = parseFloat(price) * (data.quantity || 0);
 		const newBalance = investor[0].balance - purchaseValue;
 
 		await investorModel.doc(investor[0].id).update({ balance: newBalance });
@@ -31,9 +31,16 @@ const buyStock = async (data) => {
 			.where("stockId", "==", stockId)
 			.get();
 		if (!userInvestment.empty) {
+			const userInvestmentData = [];
+			userInvestment.forEach((doc) => {
+				const item = { id: doc.id, ...doc.data() };
+				userInvestmentData.push(item);
+			});
 			const newQuantity =
-				parseFloat(userInvestment.data().stockQuantity) + parseFloat(quantity);
-			const userInvestmentDoc = await investmentsModel.doc(userInvestment.id);
+				parseFloat(userInvestmentData[0].stockQuantity) + parseFloat(quantity);
+			const userInvestmentDoc = await investmentsModel.doc(
+				userInvestmentData[0].id
+			);
 			await userInvestmentDoc.update({ stockQuantity: newQuantity });
 		} else {
 			await investmentsModel.add({
@@ -67,7 +74,7 @@ const buyStock = async (data) => {
 
 const sellStock = async (data) => {
 	try {
-		const { stockId, investorId, quantity, sellDate } = data;
+		const { stockId, investorId, quantity, price, purchaseDate } = data;
 		const stock = await stocksModel.doc(stockId);
 		const stockData = await stock.get();
 
@@ -81,8 +88,8 @@ const sellStock = async (data) => {
 			investor.push(item);
 		});
 
-		const sellValue = stockData.data().marketValue * (data.quantity || 1);
-		const newBalance = investorData.data().balance + sellValue;
+		const sellValue = price * (data.quantity || 0);
+		const newBalance = investor[0].balance + sellValue;
 
 		await investorModel.doc(investor[0].id).update({ balance: newBalance });
 
@@ -90,13 +97,22 @@ const sellStock = async (data) => {
 			.where("investorId", "==", investorId)
 			.where("stockId", "==", stockId)
 			.get();
-		const userInvestmentDoc = await investmentsModel.doc(userInvestment.id);
+
+		const userInvestmentData = [];
+		userInvestment.forEach((doc) => {
+			const item = { id: doc.id, ...doc.data() };
+			userInvestmentData.push(item);
+		});
+		const userInvestmentDoc = await investmentsModel
+			.doc(userInvestmentData[0].id)
+			.get()
+			.then((docref) => docref.data());
 		if (userInvestmentDoc.stockQuantity === parseFloat(quantity)) {
-			await investmentsModel.doc(userInvestment.id).delete();
+			await investmentsModel.doc(userInvestmentData[0].id).delete();
 		} else {
 			const newQuantity =
-				parseFloat(userInvestment.data().stockQuantity) - parseFloat(quantity);
-			await investmentsModel.update({
+				parseFloat(userInvestmentDoc.stockQuantity) - parseFloat(quantity);
+			await investmentsModel.doc(userInvestmentData[0].id).update({
 				stockQuantity: newQuantity,
 			});
 		}
@@ -106,7 +122,7 @@ const sellStock = async (data) => {
 			InvestorID: investorId,
 			TransactionValue: sellValue,
 			TransactionType: "Sell",
-			TransactionDate: sellDate,
+			TransactionDate: purchaseDate,
 		};
 		const transactionId = await transactionModel
 			.add(transactionData)
@@ -119,7 +135,6 @@ const sellStock = async (data) => {
 			data: { stockId, sellValue, stockQuantity: quantity },
 		};
 	} catch (err) {
-		logger.error("Error in selling Stock", err);
 		throw err;
 	}
 };
