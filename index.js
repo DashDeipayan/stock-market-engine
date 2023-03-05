@@ -12,6 +12,7 @@ const rdsUserRoute = require("./routes/rdsUser-route");
 const authRoute = require("./routes/auth");
 const passport = require("passport");
 const investmentRoute = require("./routes/investment-route");
+const stocksUpdate = require("./helpers/scheduled-tasks/stocksValueUpdate");
 
 const app = express();
 
@@ -27,7 +28,7 @@ app.use(cookieSession(cookieData));
 app.use(passport.initialize());
 app.use(passport.session());
 
-// stocksUpdate();
+stocksUpdate();
 
 app.use("/auth", authRoute.routes);
 app.use("/api/stocks", stockRoutes.routes);
