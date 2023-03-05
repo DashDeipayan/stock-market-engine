@@ -21,7 +21,7 @@ const buyStock = async (data) => {
 			investor.push(item);
 		});
 
-		const purchaseValue = parseFloat(price) * (data.quantity || 0);
+		const purchaseValue = parseFloat(price);
 		const newBalance = investor[0].balance - purchaseValue;
 
 		await investorModel.doc(investor[0].id).update({ balance: newBalance });
@@ -88,7 +88,7 @@ const sellStock = async (data) => {
 			investor.push(item);
 		});
 
-		const sellValue = price * (data.quantity || 0);
+		const sellValue = parseFloat(price);
 		const newBalance = investor[0].balance + sellValue;
 
 		await investorModel.doc(investor[0].id).update({ balance: newBalance });
