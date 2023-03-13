@@ -13,6 +13,7 @@
 	"license": "ISC",
 	"dependencies": {
 		"@types/cookie-session": "^2.0.44",
+		"config": "^3.3.9",
 		"cookie-session": "^2.0.0",
 		"cors": "^2.8.5",
 		"dotenv": "^16.0.0",
