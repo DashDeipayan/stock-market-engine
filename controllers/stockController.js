@@ -25,14 +25,26 @@ const getAllStocks = async (req, res, next) => {
 		};
 		res.writeHead(200, headers);
 		res.flushHeaders();
-		new betterInterval(async () => {
+
+		const fetchStocks = async () => {
 			const { stocksArray, message } = await stockModel.getAllStocks();
 			if (stocksArray.length === 0) {
 				res.status(404).write(`data: ${JSON.stringify(message)}\n\n`);
 			} else {
 				res.write(`data: ${JSON.stringify(stocksArray)}\n\n`);
 			}
-		}, config.scheduleTime * 1000).start();
+		};
+
+		const interval = new betterInterval(
+			fetchStocks,
+			config.scheduleTime * 1000
+		);
+		interval.start();
+
+		req.on("close", () => {
+			interval.stop();
+			res.end();
+		});
 	} catch (err) {
 		logger.error("Error in creating Tag", err);
 		throw err;

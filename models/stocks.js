@@ -18,24 +18,20 @@ const addStocks = async (stockData) => {
 const getAllStocks = async () => {
 	try {
 		const stocksData = await StocksModel.get();
-		const stocksArray = [];
 		if (stocksData.empty) {
 			return { stocksArray, message: "No stocks Found" };
 		} else {
-			stocksData.forEach((doc) => {
-				const stock = {
-					stockId: doc.id,
-					name: doc.data().name,
-					symbol: doc.data().symbol,
-					value: doc.data().marketValue,
-					status: doc.data().status,
-					quantity: doc.data().quantity,
-					image: doc.data().image,
-				};
-				stocksArray.push(stock);
-			});
+			const stocksArray = stocksData.docs.map((doc) => ({
+				stockId: doc.id,
+				name: doc.data().name,
+				symbol: doc.data().symbol,
+				value: doc.data().marketValue,
+				status: doc.data().status,
+				quantity: doc.data().quantity,
+				image: doc.data().image,
+			}));
+			return { stocksArray, message: "Stocks fetched succesfully" };
 		}
-		return { stocksArray, message: "Stocks fetched succesfully" };
 	} catch (err) {
 		logger.error("Error in creating Tag", err);
 		throw err;
