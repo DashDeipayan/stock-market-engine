@@ -1,13 +1,15 @@
 "use strict";
 const firebase = require("../db");
-const Investor = require("../models/investor");
+const InvestorModel = require("../models/investor");
 const fireStore = firebase.firestore();
 
-const addInvestor = async (req, res, next) => {
+const addOrUpdateInvestor = async (req, res, next) => {
 	try {
 		const data = req.body;
-		await fireStore.collection("investors").add(data);
-		res.send("record saved successfully");
+		const { isNewUser, id, message } = await InvestorModel.addOrUpdateInvestor(
+			data
+		);
+		return res.json({ id, message, data });
 	} catch (err) {
 		res.status(400).send(err.message);
 	}
@@ -42,12 +44,19 @@ const getAllInvestors = async (req, res, next) => {
 const getInvestorById = async (req, res, next) => {
 	try {
 		const id = req.params.id;
-		const investor = await fireStore.collection("investors").doc(id);
-		const data = await investor.get();
-		if (!data.exists) {
+		const investor = await fireStore
+			.collection("investors")
+			.where("investorId", "==", id)
+			.get();
+
+		const data = [];
+		investor.forEach((doc) => {
+			data.push({ id: doc.id, ...doc.data() });
+		});
+		if (!data.length) {
 			res.status(404).send("No investor found");
 		} else {
-			res.send(data.data());
+			res.status(200).json({ ...data });
 		}
 	} catch (err) {
 		res.status(400).send(err.message);
@@ -76,7 +85,7 @@ const deleteInvestor = async (req, res, next) => {
 };
 
 module.exports = {
-	addInvestor,
+	addOrUpdateInvestor,
 	getAllInvestors,
 	getInvestorById,
 	updateInvestor,

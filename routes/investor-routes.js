@@ -1,6 +1,6 @@
 const express = require("express");
 const {
-	addInvestor,
+	addOrUpdateInvestor,
 	getAllInvestors,
 	getInvestorById,
 	updateInvestor,
@@ -9,7 +9,7 @@ const {
 
 const router = express.Router();
 
-router.post("/", addInvestor);
+router.post("/", addOrUpdateInvestor);
 router.get("/", getAllInvestors);
 router.get("/:id", getInvestorById);
 router.put("/:id", updateInvestor);
