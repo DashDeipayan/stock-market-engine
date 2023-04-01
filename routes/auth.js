@@ -14,6 +14,10 @@ router.get("/login/failed", (req, res) => {
 });
 router.get("/login/success", (req, res) => {
 	if (req.user) {
+		const headers = {
+			"Cache-Control": "no-cache",
+		};
+		res.writeHead(200, headers);
 		res.status(200).json({
 			success: true,
 			message: "success",
