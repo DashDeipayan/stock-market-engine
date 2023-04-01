@@ -13,13 +13,14 @@ const authRoute = require("./routes/auth");
 const passport = require("passport");
 const investmentRoute = require("./routes/investment-route");
 const stocksUpdate = require("./helpers/scheduled-tasks/stocksValueUpdate");
+const config = require("./config");
 
 const app = express();
 
 app.use(express.json());
 app.use(
 	cors({
-		origin: "http://localhost:3000",
+		origin: config.hostUrl,
 		methods: "GET,POST,PUT,DELETE",
 		credentials: true,
 	})
