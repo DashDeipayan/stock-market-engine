@@ -29,7 +29,7 @@ app.use(cookieSession(cookieData));
 app.use(passport.initialize());
 app.use(passport.session());
 
-// stocksUpdate();
+stocksUpdate();
 
 app.use("/auth", authRoute.routes);
 app.use("/api/stocks", stockRoutes.routes);
