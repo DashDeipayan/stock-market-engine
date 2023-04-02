@@ -14,10 +14,7 @@ router.get("/login/failed", (req, res) => {
 });
 router.get("/login/success", (req, res) => {
 	if (req.user) {
-		const headers = {
-			"Cache-Control": "no-store",
-		};
-		res.setHeader(headers);
+		res.setHeader("Cache-Control", "max-age=0");
 		res.status(200).json({
 			success: true,
 			message: "success",
